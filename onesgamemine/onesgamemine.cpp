@@ -1,6 +1,6 @@
 #include "onesgamemine.hpp"
 
-#include <eosiolib/transaction.hpp>
+#include <eosio/transaction.hpp>
 
 #define EOS_TOKEN_SYMBOL symbol("EOS", 4)
 #define ONES_TOKEN_SYMBOL symbol("ONES", 4)
@@ -22,7 +22,7 @@ uint64_t default_swap_time = 1598961600;
 const uint64_t TOKENNUM = 3;
 
 #define ACCOUNT_CHECK(account) \
-    eosio_assert(is_account(account), "invalid account " #account);
+    check(is_account(account), "invalid account " #account);
 
 void split(const std::string &str, char delimiter,
            std::vector<std::string> &params)
@@ -47,7 +47,7 @@ uint64_t get_token_offset(symbol type)
             return i;
         }
     }
-    eosio_assert(false, "invalid token type");
+    check(false, "invalid token type");
     return 99999999999999;
 }
 
@@ -162,7 +162,7 @@ void onesgame::_transfer_to(name to, uint64_t amount, symbol coin_code,
 void onesgame::issue(name to, asset quantity, string memo)
 {
     require_auth(eosio::name(ONES_PLAY_ACCOUNT));
-    // eosio_assert(false, "onesgamemine contact is upgrading");
+    // check(false, "onesgamemine contact is upgrading");
 
     std::vector<std::string> params;
     split(memo, ',', params);
@@ -171,9 +171,9 @@ void onesgame::issue(name to, asset quantity, string memo)
 
     if (action == "issuemarket")
     {
-        eosio_assert(quantity.amount == 360000, "invalid quantity");
+        check(quantity.amount == 360000, "invalid quantity");
 
-        eosio_assert(params.size() == 3, "invalid memo");
+        check(params.size() == 3, "invalid memo");
         uint64_t round = atoll(params.at(1).c_str());
         uint64_t total = atoll(params.at(2).c_str());
 
@@ -189,7 +189,7 @@ void onesgame::issue(name to, asset quantity, string memo)
     }
     else if (action == "issueswap")
     {
-        eosio_assert(quantity.amount == 720000, "invalid quantity");
+        check(quantity.amount == 720000, "invalid quantity");
 
         st_defi_config defi_config = _defi_config.get();
 
@@ -201,9 +201,9 @@ void onesgame::issue(name to, asset quantity, string memo)
 void onesgame::mineswap(name account, asset quantity)
 {
     require_auth(eosio::name(ONES_DEFI_ACCOUNT));
-    // eosio_assert(false, "onesgamemine contact is upgrading");
+    // check(false, "onesgamemine contact is upgrading");
 
-    eosio_assert(quantity.symbol == EOS_TOKEN_SYMBOL, "invalid symbol");
+    check(quantity.symbol == EOS_TOKEN_SYMBOL, "invalid symbol");
 
     if (quantity.amount < 10000)
     {
@@ -266,7 +266,7 @@ void onesgame::minemarkets()
 {
     require_auth(name(ONES_PLAY_ACCOUNT));
     st_defi_config defi_config = _defi_config.get();
-    eosio_assert(defi_config.market_quantity[0] > 10000, "market quantity is zero");
+    check(defi_config.market_quantity[0] > 10000, "market quantity is zero");
 
     uint64_t round_id = 1;
     auto it = _defi_market.rbegin();
@@ -359,11 +359,11 @@ void onesgame::_syncmarket(uint64_t round_id, uint64_t &total_amount, uint64_t &
 void onesgame::minemarket(uint64_t round_id)
 {
     require_auth(get_self());
-    // eosio_assert(false, "onesgamemine contact is upgrading");
+    // check(false, "onesgamemine contact is upgrading");
 
     auto market = _defi_market.find(round_id);
-    eosio_assert(market != _defi_market.end(), "invalid round");
-    eosio_assert(market->total > market->executed, "has been executed");
+    check(market != _defi_market.end(), "invalid round");
+    check(market->total > market->executed, "has been executed");
 
     tb_defi_round _defi_round(get_self(), get_self().value);
     auto round_index = _defi_round.get_index<"byroundkey"_n>();
@@ -385,7 +385,7 @@ void onesgame::_minemarket(uint64_t round_id, name account, const vector<uint64_
 
     if (it != _defi_account.end())
     {
-        eosio_assert(round_id >= it->market_round, "invalid round");
+        check(round_id >= it->market_round, "invalid round");
 
         _defi_account.modify(it, _self, [&](auto &t) {
             init_amounts(t.quantity);
@@ -399,7 +399,7 @@ void onesgame::_minemarket(uint64_t round_id, name account, const vector<uint64_
     }
     else
     {
-        eosio_assert(it->market_round != round_id, "market has been mined");
+        check(it->market_round != round_id, "market has been mined");
 
         _defi_account.emplace(get_self(), [&](auto &t) {
             t.account = account;
@@ -421,10 +421,10 @@ void onesgame::_minemarket(uint64_t round_id, name account, const vector<uint64_
 void onesgame::claim(name account)
 {
     require_auth(account);
-    // eosio_assert(false, "onesgamemine contact is upgrading");
+    // check(false, "onesgamemine contact is upgrading");
 
     auto it = _defi_account.find(account.value);
-    eosio_assert((it != _defi_account.end()), "invalid account");
+    check((it != _defi_account.end()), "invalid account");
 
     vector<uint64_t> quantity = it->quantity;
     _defi_account.modify(it, _self, [&](auto &t) {
@@ -445,7 +445,7 @@ extern "C"
     {
         if (action == eosio::name("onerror").value)
         {
-            eosio_assert(code == eosio::name("eosio").value,
+            check(code == eosio::name("eosio").value,
                          "onerror action’s are only valid from the eosio");
         }
 

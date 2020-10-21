@@ -1,14 +1,14 @@
 #pragma once
 
-#include <eosiolib/crypto.h>
+#include <eosio/crypto.hpp>
 
-#include <eosiolib/asset.hpp>
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/singleton.hpp>
-#include <eosiolib/time.hpp>
+#include <eosio/asset.hpp>
+#include <eosio/eosio.hpp>
+#include <eosio/singleton.hpp>
+#include <eosio/time.hpp>
 #include <string>
-#include <utils.hpp>
 #include <vector>
+#include "utils.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -231,6 +231,10 @@ class [[eosio::contract("onesgamedefi")]] onesgame : public contract {
     [[eosio::action]] void marketsettle();
 
    private:
+    uint64_t now(){
+        return current_time_point().elapsed.count() / 1000;
+    }
+
     void _addliquidity(name from, name to, asset quantity, string memo);
 
     void _marketclaim_box();

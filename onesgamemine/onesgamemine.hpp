@@ -1,11 +1,10 @@
 #pragma once
 
-#include <eosiolib/crypto.h>
+#include <eosio/crypto.hpp>
 
-#include <eosiolib/asset.hpp>
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/singleton.hpp>
-#include <eosiolib/time.hpp>
+#include <eosio/asset.hpp>
+#include <eosio/eosio.hpp>
+#include <eosio/singleton.hpp>
 #include <string>
 #include <vector>
 
@@ -177,7 +176,11 @@ private:
     void _minemarket(uint64_t round_id, name account, const vector<uint64_t> &quantity, float factor);
 
 private:
-    tb_defi_account _defi_account;
+	uint64_t now(){
+		return current_time_point().elapsed.count() / 1000;
+	}
+
+	tb_defi_account _defi_account;
 
     tb_defi_config _defi_config;
 

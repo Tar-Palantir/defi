@@ -1,10 +1,9 @@
 #pragma once
 
-#include <eosiolib/asset.hpp>
-#include <eosiolib/crypto.h>
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/singleton.hpp>
-#include <eosiolib/time.hpp>
+#include <eosio/asset.hpp>
+#include <eosio/crypto.hpp>
+#include <eosio/eosio.hpp>
+#include <eosio/singleton.hpp>
 #include <string>
 #include <vector>
 
@@ -98,7 +97,11 @@ public:
     typedef multi_index<"bonuslog"_n, st_defi_bonus> tb_defi_bonus;
 
 private:
-    uint64_t _get_stake_id();
+	uint64_t now(){
+		return current_time_point().elapsed.count() / 1000;
+	}
+
+	uint64_t _get_stake_id();
 
     void _stake(name account, asset quantity);
 

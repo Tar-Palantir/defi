@@ -1,5 +1,5 @@
 #include "onesgamedivd.hpp"
-#include <eosiolib/transaction.hpp>
+#include <eosio/transaction.hpp>
 
 #define EOS_TOKEN_SYMBOL symbol("EOS", 4)
 #define EOS_TOKEN_ACCOUNT "eosio.token"
@@ -10,7 +10,7 @@
 #define ONES_PLAY_ACCOUNT "onesgameplay"
 
 #define ACCOUNT_CHECK(account) \
-    eosio_assert(is_account(account), "invalid account " #account);
+    check(is_account(account), "invalid account " #account);
 
 void onesgame::transfer(name from, name to, asset quantity, string memo)
 {
@@ -25,11 +25,11 @@ void onesgame::transfer(name from, name to, asset quantity, string memo)
         return;
     }
 
-    eosio_assert(quantity.is_valid(), "invalid quantity");
-    eosio_assert(quantity.amount > 0, "must transfer positive quantity");
+    check(quantity.is_valid(), "invalid quantity");
+    check(quantity.amount > 0, "must transfer positive quantity");
     if (memo == "stake")
     {
-        eosio_assert(quantity.amount % 100000 == 0, "must transfer 10*n quantity");
+        check(quantity.amount % 100000 == 0, "must transfer 10*n quantity");
 
         this->_stake(from, quantity);
         return;
@@ -85,8 +85,8 @@ void onesgame::claim(name account)
     require_auth(account);
 
     auto it = _defi_account.find(account.value);
-    eosio_assert((it != _defi_account.end()), "invalid account");
-    eosio_assert((it->unclaim_quantity.amount > 0), "unclaim is zero");
+    check((it != _defi_account.end()), "invalid account");
+    check((it->unclaim_quantity.amount > 0), "unclaim is zero");
 
     uint64_t amount = it->unclaim_quantity.amount;
     _defi_account.modify(it, _self, [&](auto &t) {
@@ -100,8 +100,8 @@ void onesgame::unstake(name account, uint64_t stake_id)
     require_auth(account);
 
     auto it = _defi_stake.find(stake_id);
-    eosio_assert((it != _defi_stake.end()), "stake_id account");
-    eosio_assert((account == it->account), "invalid account");
+    check((it != _defi_stake.end()), "stake_id account");
+    check((account == it->account), "invalid account");
 
     auto accountit = _defi_account.find(account.value);
 
@@ -167,7 +167,7 @@ void onesgame::bonus()
         auto it = _defi_bonus.rbegin();
         if (it != _defi_bonus.rend())
         {
-            eosio_assert(((now() - it->timestamp) > 3600 * 23), "today has been paid");
+            check(((now() - it->timestamp) > 3600 * 23), "today has been paid");
         }
     }
     auto account_index = _defi_account.get_index<"bystake"_n>();
@@ -290,7 +290,7 @@ extern "C"
     {
         if (action == eosio::name("onerror").value)
         {
-            eosio_assert(code == eosio::name("eosio").value, "onerror action’s are only valid from the eosio");
+            check(code == eosio::name("eosio").value, "onerror action’s are only valid from the eosio");
         }
 
         if (code == receiver)
